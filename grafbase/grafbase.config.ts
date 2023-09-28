@@ -16,18 +16,21 @@ const Project = g.model('Project', {
   image: g.url(),
   liveSiteUrl: g.url(),
   category: g.string().search(),
-  createdBy: g.relation(() => User)
+  createdBy: g.relation(() => User),
+}).auth((rules) => {
+  rules.public().read()
+  rules.private().create().delete().update()
 })
 
+const jwt = auth.JWT({
+  issuer: 'grafbase',
+  secret:  g.env('NEXTAUTH_SECRET')
+})
 
 export default config({
-  schema: g
-  // Integrate Auth
-  // https://grafbase.com/docs/auth
-  // auth: {
-  //   providers: [authProvider],
-  //   rules: (rules) => {
-  //     rules.private()
-  //   }
-  // }
+  schema: g,
+  auth: {
+    providers: [jwt],
+    rules: (rules) => rules.private()
+  },
 })
